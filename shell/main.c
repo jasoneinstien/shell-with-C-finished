@@ -7,7 +7,7 @@
 //initialzation 
 #define LSH_RL_BUFSIZE 1024 
 #define LSH_TOK_BUFSIZE 64 
-#define LSH_TOK_DELM " \t\r\n\a" 
+#define LSH_TOK_DELIM " \t\r\n\a" 
 
 //Interprert 
 //Terminate 
@@ -75,7 +75,7 @@ char * lsh_read_line(void){
             exit(EXIT_FAILURE);
         }
     }
-    //return to next char
+    //return to next char pointer link list
     return line; 
 }
 //reminder of readline function 
@@ -85,25 +85,72 @@ char * lsh_read_line(void){
 
 //parsing the line into argv do not allow backslash escaping
 //for simplification , treadt white space as seperation 
+//using null terminated pointer
+//dynamic expading buffer similar to tradition getline method 
 
 char ** lsh_split_line(char* line){
+    //static variable
     int bufsize = LSH_TOK_BUFSIZE , position = 0; 
     char ** tokens = malloc(bufsize* sizeof(char*));
     char *token; 
-
-    if(!token){
+    
+    //error when size of the tokens arrary is equals to 0; 
+    if(!tokens){
         fprintf(stderr , "lsh : allocation error\n");
         exit(EXIT_FAILURE);
     }
+    //strock: return a pointer to the first token ==> return a pointer to within the string you give ie) line
+    token = strtok(line , LSH_TOK_DELIM); 
 
-    token = strock(line , LSH_TOK_DELIM); 
-
+    //the pointer arrary is not null 
     while(token != NULL){
+        //shift one to the right 
         tokens[position] = token;
         position++; 
-        
-        
+        //when the positiotn > 64 already 
+       if(position >= bufsize){
+        //dynmaically enlarge the bufsize 
+         bufsize += LSH_TOK_BUFSIZE;
+         //realloc the space enlarge it
+         tokens = realloc(tokens , bufsize * sizeof(char*));
+         //check any error 
+         if(!tokens){
+            fprintf(stderr , "lsh : allocation error \n");
+            exit(EXIT_FAILURE);
+         }
+       }
+       //return a pointer that is null with 64 bytes null
+       token = strtok(NULL , LSH_TOK_DELIM);
+    }
+    //set last posnter to NULL 
+    tokens[position] =NULL;
+    //return the token for next function
+    return tokens; 
+}
+
+
+//start working the shekll
+//to start the shell you either start by init it when turn the cp or fork system call 
+//when the function is called the operation system which should be in two system will run as parents and child
+//exec ==> replact the current running program with new one 
+int lsh_launch(char ** args){
+    pid_t pid , wpid;
+    int status;
+
+    pid = fork();
+
+    if(pid == 0){
+    
     }
 }
+
+
+
+
+
+
+
+
+
 
 
